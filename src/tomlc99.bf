@@ -26,13 +26,13 @@
 using System;
 using System.Interop;
 
-namespace tomlc99_Beef;
+namespace tomlc99;
 
 public static class tomlc99
 {
 	typealias FILE = void*;
-	typealias char = char8;
 	typealias size_t = uint;
+	typealias char = c_char;
 
 	typealias int8_t = int8;
 	typealias int16_t = int16;
@@ -50,13 +50,13 @@ public static class tomlc99
 	/* Parse a file. Return a table on success, or 0 otherwise.
 	* Caller must toml_free(the-return-value) after use.
 	*/
-	[CLink] public static extern toml_table_t* toml_parse_file(FILE* fp, char* errbuf, int errbufsz);
+	[CLink] public static extern toml_table_t* toml_parse_file(FILE* fp, char* errbuf, c_int errbufsz);
 
 	/* Parse a string containing the full config.
 	* Return a table on success, or 0 otherwise.
 	* Caller must toml_free(the-return-value) after use.
 	*/
-	[CLink] public static extern toml_table_t* toml_parse(char* conf, /* NUL terminated, please. */ char* errbuf, int errbufsz);
+	[CLink] public static extern toml_table_t* toml_parse(char* conf, /* NUL terminated, please. */ char* errbuf, c_int errbufsz);
 
 	/* Free the table returned by toml_parse() or toml_parse_file(). Once
 	* this function is called, any handles accessed through this tab
@@ -73,17 +73,17 @@ public static class tomlc99
 	{
 		public struct
 		{ /* internal. do not use. */
-			int year, month, day;
-			int hour, minute, second, millisec;
+			c_int year, month, day;
+			c_int hour, minute, second, millisec;
 			char[10] z;
 		} __buffer;
-		int* year;
-		int* month;
-		int* day;
-		int* hour;
-		int* minute;
-		int* second;
-		int* millisec;
+		c_int* year;
+		c_int* month;
+		c_int* day;
+		c_int* hour;
+		c_int* minute;
+		c_int* second;
+		c_int* millisec;
 		char* z;
 	}
 
@@ -92,8 +92,8 @@ public static class tomlc99
 	{
 		public toml_timestamp_t* ts; /* ts must be freed after use */
 		public char* s; /* string value. s must be freed after use */
-		public int b; /* bool value */
-		public int64_t i; /* int value */
+		public c_int b; /* bool value */
+		public int64_t i; /* c_int value */
 		public double d; /* double value */
 	}
 
@@ -103,36 +103,36 @@ public static class tomlc99
 	[CRepr]
 	public struct toml_datum_t
 	{
-		public int ok;
+		public c_int ok;
 		public toml_datum_u u;
 	}
 
 	/* on arrays: */
 	/* ... retrieve size of array. */
-	[CLink] public static extern int toml_array_nelem(toml_array_t* arr);
+	[CLink] public static extern c_int toml_array_nelem(toml_array_t* arr);
 
 	/* ... retrieve values using index. */
-	[CLink] public static extern toml_datum_t toml_string_at(toml_array_t* arr, int idx);
+	[CLink] public static extern toml_datum_t toml_string_at(toml_array_t* arr, c_int idx);
 
-	[CLink] public static extern toml_datum_t toml_bool_at(toml_array_t* arr, int idx);
+	[CLink] public static extern toml_datum_t toml_bool_at(toml_array_t* arr, c_int idx);
 
-	[CLink] public static extern toml_datum_t toml_int_at(toml_array_t* arr, int idx);
+	[CLink] public static extern toml_datum_t toml_int_at(toml_array_t* arr, c_int idx);
 
-	[CLink] public static extern toml_datum_t toml_double_at(toml_array_t* arr, int idx);
+	[CLink] public static extern toml_datum_t toml_double_at(toml_array_t* arr, c_int idx);
 
-	[CLink] public static extern toml_datum_t toml_timestamp_at(toml_array_t* arr, int idx);
+	[CLink] public static extern toml_datum_t toml_timestamp_at(toml_array_t* arr, c_int idx);
 
 	/* ... retrieve array or table using index. */
-	[CLink] public static extern toml_array_t* toml_array_at(toml_array_t* arr, int idx);
+	[CLink] public static extern toml_array_t* toml_array_at(toml_array_t* arr, c_int idx);
 
-	[CLink] public static extern toml_table_t* toml_table_at(toml_array_t* arr, int idx);
+	[CLink] public static extern toml_table_t* toml_table_at(toml_array_t* arr, c_int idx);
 
 	/* on tables: */
 	/* ... retrieve the key in table at keyidx. Return 0 if out of range. */
-	[CLink] public static extern char* toml_key_in(toml_table_t* tab, int keyidx);
+	[CLink] public static extern char* toml_key_in(toml_table_t* tab, c_int keyidx);
 
 	/* ... returns 1 if key exists in tab, 0 otherwise */
-	[CLink] public static extern int toml_key_exists(toml_table_t* tab, char* key);
+	[CLink] public static extern c_int toml_key_exists(toml_table_t* tab, char* key);
 
 	/* ... retrieve values using key. */
 	[CLink] public static extern toml_datum_t toml_string_in(toml_table_t* arr, char* key);
@@ -157,7 +157,7 @@ public static class tomlc99
 	[CLink] public static extern char toml_array_kind(toml_array_t* arr);
 
 	/* For array kind 'v'alue, return the type of values
-	i:int, d:double, b:bool, s:string, t:time, D:date, T:timestamp, 'm'ixed
+	i:c_int, d:double, b:bool, s:string, t:time, D:date, T:timestamp, 'm'ixed
 	0 if unknown
 	*/
 	[CLink] public static extern char toml_array_type(toml_array_t* arr);
@@ -166,13 +166,13 @@ public static class tomlc99
 	[CLink] public static extern char* toml_array_key(toml_array_t* arr);
 
 	/* Return the number of key-values in a table */
-	[CLink] public static extern int toml_table_nkval(toml_table_t* tab);
+	[CLink] public static extern c_int toml_table_nkval(toml_table_t* tab);
 
 	/* Return the number of arrays in a table */
-	[CLink] public static extern int toml_table_narr(toml_table_t* tab);
+	[CLink] public static extern c_int toml_table_narr(toml_table_t* tab);
 
 	/* Return the number of sub-tables in a table */
-	[CLink] public static extern int toml_table_ntab(toml_table_t* tab);
+	[CLink] public static extern c_int toml_table_ntab(toml_table_t* tab);
 
 	/* Return the key of a table*/
 	[CLink] public static extern char* toml_table_key(toml_table_t* tab);
@@ -180,9 +180,9 @@ public static class tomlc99
 	/*--------------------------------------------------------------
 	* misc
 	*/
-	[CLink] public static extern int toml_utf8_to_ucs(char* orig, int len, int64_t* ret);
+	[CLink] public static extern c_int toml_utf8_to_ucs(char* orig, c_int len, int64_t* ret);
 
-	[CLink] public static extern int toml_ucs_to_utf8(int64_t code, char[6] buf);
+	[CLink] public static extern c_int toml_ucs_to_utf8(int64_t code, char[6] buf);
 
 	[CLink] public static extern void toml_set_memutil(function void*(size_t) xxmalloc, function void(void*) xxfree);
 
@@ -195,17 +195,17 @@ public static class tomlc99
 
 	[CLink] public static extern toml_raw_t toml_raw_in(toml_table_t* tab, char* key);
 
-	[CLink] public static extern toml_raw_t toml_raw_at(toml_array_t* arr, int idx);
+	[CLink] public static extern toml_raw_t toml_raw_at(toml_array_t* arr, c_int idx);
 
-	[CLink] public static extern int toml_rtos(toml_raw_t s, char** ret);
+	[CLink] public static extern c_int toml_rtos(toml_raw_t s, char** ret);
 
-	[CLink] public static extern int toml_rtob(toml_raw_t s, int* ret);
+	[CLink] public static extern c_int toml_rtob(toml_raw_t s, c_int* ret);
 
-	[CLink] public static extern int toml_rtoi(toml_raw_t s, int64_t* ret);
+	[CLink] public static extern c_int toml_rtoi(toml_raw_t s, int64_t* ret);
 
-	[CLink] public static extern int toml_rtod(toml_raw_t s, double* ret);
+	[CLink] public static extern c_int toml_rtod(toml_raw_t s, double* ret);
 
-	[CLink] public static extern int toml_rtod_ex(toml_raw_t s, double* ret, char* buf, int buflen);
+	[CLink] public static extern c_int toml_rtod_ex(toml_raw_t s, double* ret, char* buf, c_int buflen);
 
-	[CLink] public static extern int toml_rtots(toml_raw_t s, toml_timestamp_t* ret);
+	[CLink] public static extern c_int toml_rtots(toml_raw_t s, toml_timestamp_t* ret);
 }

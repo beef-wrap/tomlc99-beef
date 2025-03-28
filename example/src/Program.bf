@@ -1,7 +1,8 @@
 using System;
 using System.Diagnostics;
 using static System.Runtime;
-using static tomlc99_Beef.tomlc99;
+
+using static tomlc99.tomlc99;
 
 namespace example;
 
@@ -59,7 +60,7 @@ static class Program
 
 		Debug.WriteLine($"host: {StringView(host.u.s)}\n");
 		Debug.WriteLine("port: ");
-		for (int i = 0;; i++)
+		for (int32 i = 0;; i++)
 		{
 			toml_datum_t port = toml_int_at(portarray, i);
 			if (port.ok == 0) break;

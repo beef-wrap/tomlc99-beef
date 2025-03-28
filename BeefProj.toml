@@ -2,12 +2,10 @@ FileVersion = 1
 
 [Project]
 Name = "tomlc99-beef"
-TargetType = "BeefLib"
-StartupObject = "tomlc99_beef.Program"
+DefaultNamespace = "tomlc99"
 
 [Configs.Debug.Win64]
-CLibType = "DynamicDebug"
-LibPaths = ["$(ProjectDir)\\libs\\tomlc99d.lib"]
+LibPaths = ["$(ProjectDir)\\libs\\windows\\x64\\tomlc99.lib"]
 
 [Configs.Release.Win64]
-LibPaths = ["$(ProjectDir)\\libs\\tomlc99.lib"]
+LibPaths = ["$(ProjectDir)\\libs\\windows\\x64\\tomlc99.lib"]
